@@ -1,0 +1,11 @@
+{% extends 'Ok99PrivateZoneAdminBundle:CRUD:base_edit.html.twig' %}
+
+{% block actions %}
+    <div class="btn-group">{% spaceless %}
+            {% include 'Ok99PrivateZoneAdminBundle:Button:show_button.html.twig' %}
+            {% include 'Ok99PrivateZoneAdminBundle:Button:history_button.html.twig' %}
+            {% include 'Ok99PrivateZonePageBundle:Button:publish_button.html.twig' %}
+            {% include 'Ok99PrivateZoneAdminBundle:Button:acl_button.html.twig' %}
+        {% endspaceless %}</div>
+    {#% include 'Ok99PrivateZoneAdminBundle:Button:list_button.html.twig' %#}
+{% endblock %}
