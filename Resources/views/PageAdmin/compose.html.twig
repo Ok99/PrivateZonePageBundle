@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block actions %}
-    {% include 'Ok99PrivateZonePageBundle:Button:create_button.html.twig' %}
+    {% if admin.isAdmin() %}
+        {% include 'Ok99PrivateZonePageBundle:Button:create_button.html.twig' %}
+    {% endif %}
     <div class="btn-group">{% spaceless %}
         {% include 'Ok99PrivateZoneAdminBundle:Button:show_button.html.twig' %}
         {% include 'Ok99PrivateZoneAdminBundle:Button:history_button.html.twig' %}

@@ -289,20 +289,24 @@ class PageAdmin extends BaseAdmin
 
         $current_route = $admin->getRequest()->get('_route');
 
-        $editNode = $menu->addChild(
-            $this->trans('sidemenu.link_edit_page'),
-            array('uri' => $admin->generateUrl('edit', array('id' => $id)), 'attributes' => array('class' => $admin->getRequest()->get('_route') == 'admin_privatezonecore_page_page_edit' ? 'active' : ''))
-        );
+        if ($this->isAdmin()) {
+            $editNode = $menu->addChild(
+                $this->trans('sidemenu.link_edit_page'),
+                array('uri' => $admin->generateUrl('edit', array('id' => $id)), 'attributes' => array('class' => $admin->getRequest()->get('_route') == 'admin_privatezonecore_page_page_edit' ? 'active' : ''))
+            );
+        }
 
         $menu->addChild(
             $this->trans('sidemenu.link_compose_page'),
             array('uri' => $admin->generateUrl('compose', array('id' => $id)), 'attributes' => array('class' => $admin->getRequest()->get('_route') == 'admin_privatezonecore_page_page_compose' ? 'active' : ''))
         );
 
-        $menu->addChild(
-            $this->trans('sidemenu.link_list_blocks'),
-            array('uri' => $admin->getChild('sonata.page.admin.block')->generateUrl('list', array('id' => $id)), 'attributes' => array('class' => $admin->getRequest()->get('_route') == 'admin_privatezonecore_page_page_block_list' ? 'active' : ''))
-        );
+        if ($this->isAdmin()) {
+            $menu->addChild(
+                $this->trans('sidemenu.link_list_blocks'),
+                array('uri' => $admin->getChild('sonata.page.admin.block')->generateUrl('list', array('id' => $id)), 'attributes' => array('class' => $admin->getRequest()->get('_route') == 'admin_privatezonecore_page_page_block_list' ? 'active' : ''))
+            );
+        }
 
         if ($this->securityHandler->isGranted($this->getChild('sonata.page.admin.snapshot'), 'EDIT', $this->getChild('sonata.page.admin.snapshot'))) {
             $menu->addChild(
@@ -454,6 +458,11 @@ class PageAdmin extends BaseAdmin
     public function showInAddBlock()
     {
         return true;
+    }
+
+    public function showAddBtnInDashboard()
+    {
+        return $this->isAdmin();
     }
 
     /**

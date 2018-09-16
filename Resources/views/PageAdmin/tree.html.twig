@@ -2,7 +2,7 @@
 
 {% block actions %}
     <div class="btn-group">{% spaceless %}
-        {% if currentSite and admin.hasRoute('create') and admin.isGranted('CREATE')%}
+        {% if currentSite and admin.isAdmin() and admin.hasRoute('create') and admin.isGranted('CREATE')%}
             <a class="btn btn-success sonata-action-element" href="{{ admin.generateUrl('create', { siteId: currentSite.id }) }}">
                 <i class="fa fa-plus"></i>&nbsp;
                 {{ 'link_action_create'|trans({}, 'Ok99PrivateZonePageBundle') }}</a>
@@ -20,13 +20,15 @@
     <ul{% if rootPages %} class="page-tree"{% endif %}>
         {% for page in pages if ((not page.parent or not rootPages) and (admin.isAdmin() or page.servicing == 0))%}
             <li>
-                <div class="page-tree__item clearfix" style="padding-right: 4px; padding-bottom: 4px;">
+                <div class="page-tree__item clearfix" style="padding-right: 4px; padding-bottom: {{ admin.isAdmin() ? 4 : 7 }}px;">
                     {% if page.parent %}<i class="fa fa-caret-right" style="margin-top: 3px;"></i>{% endif %}
                     <i class="fa page-tree__item__is-hybrid fa-{% if page.isHybrid %}gears{% else %}code{% endif %}" style="margin-top: 4px;"></i>
                     {% if admin.isAdmin() or admin.isGranted('EDIT', page) %}
                         <a class="page-tree__item__edit" href="{{ admin.generateObjectUrl('compose', page) }}">{{ page.translations[locale].name }}</a>
                         <i class="text-muted">{{ page.translations[locale].url }}</i>
-                        <a class="btn btn-primary btn-xs pull-right" style="margin-top: -4px; margin-left: 20px; padding: 3px 11px;" href="{{ admin.generateObjectUrl('edit', page) }}"><i class="fa fa-pencil-square-o"> <span style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif">Upravit metadata</span></i></a>
+                        {% if admin.isAdmin() %}
+                            <a class="btn btn-primary btn-xs pull-right" style="margin-top: -4px; margin-left: 20px; padding: 3px 11px;" href="{{ admin.generateObjectUrl('edit', page) }}"><i class="fa fa-pencil-square-o"> <span style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif">Upravit metadata</span></i></a>
+                        {% endif %}
                     {% else %}
                         <span class="page-tree__item__edit">{{ page.name }}</span>
                         <i class="text-muted">{{ page.url }}</i>
