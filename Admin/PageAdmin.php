@@ -12,6 +12,7 @@
 namespace Ok99\PrivateZoneCore\PageBundle\Admin;
 
 use Ok99\PrivateZoneCore\AdminBundle\Admin\Admin as BaseAdmin;
+use Ok99\PrivateZoneCore\PageBundle\Entity\Page;
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Route\RouteCollection;
 use Ok99\PrivateZoneCore\PageBundle\Entity\SitePool;
@@ -22,7 +23,6 @@ use Sonata\AdminBundle\Datagrid\DatagridMapper;
 
 use Sonata\PageBundle\Exception\PageNotFoundException;
 use Sonata\PageBundle\Exception\InternalErrorException;
-use Sonata\PageBundle\Model\PageInterface;
 use Sonata\PageBundle\Model\PageManagerInterface;
 
 use Sonata\Cache\CacheManagerInterface;
@@ -61,6 +61,8 @@ class PageAdmin extends BaseAdmin
         ));
 
         $routes->add('tree', 'tree');
+
+        $routes->remove('history');
     }
 
     /**
@@ -248,6 +250,13 @@ class PageAdmin extends BaseAdmin
             $formMapper
                 ->with($this->trans('form_page.group_advanced_label'), array('collapsed' => false))
                     ->add('decorate', null,  array('required' => false))
+                ->end();
+        }
+
+        if ($this->isSuperAdmin()) {
+            $formMapper
+                ->with($this->trans('form_page.group_advanced_label'), array('collapsed' => false))
+                    ->add('servicing', null,  array('required' => false))
                 ->end();
         }
 
@@ -445,5 +454,22 @@ class PageAdmin extends BaseAdmin
     public function showInAddBlock()
     {
         return true;
+    }
+
+    /**
+     * @param null|Page $object
+     * @return bool
+     */
+    public function isAdmin($object = null)
+    {
+        return $object ? $this->isGranted('ADMIN', $object) : $this->isGranted('ADMIN');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSuperAdmin()
+    {
+        return $this->isGranted('ROLE_SUPER_ADMIN');
     }
 }

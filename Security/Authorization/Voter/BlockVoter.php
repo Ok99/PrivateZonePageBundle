@@ -4,8 +4,6 @@ namespace Ok99\PrivateZoneCore\PageBundle\Security\Authorization\Voter;
 
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Acl\Voter\AclVoter;
 
 class BlockVoter implements VoterInterface
 {
@@ -29,7 +27,10 @@ class BlockVoter implements VoterInterface
     }
 
     /**
-     * @var \Ok99\PrivateZoneCore\PageBundle\Entity\Block $block
+     * @param TokenInterface $token
+     * @param \Ok99\PrivateZoneCore\PageBundle\Entity\Block $block
+     * @param array $attributes
+     * @return int
      */
     public function vote(TokenInterface $token, $block, array $attributes)
     {

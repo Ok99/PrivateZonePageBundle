@@ -105,6 +105,13 @@ class Page implements PageInterface
     protected $enabled = false;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(type="boolean")
+     */
+    protected $servicing = false;
+
+    /**
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -1333,11 +1340,35 @@ class Page implements PageInterface
      * Set cssClass
      *
      * @param mixed $cssClass
-     * @return Site
+     * @return Page
      */
     public function setCssClass($cssClass)
     {
         $this->cssClass = $cssClass;
         return $this;
     }
+
+    /**
+     * Set servicing
+     *
+     * @param boolean $servicing
+     * @return Page
+     */
+    public function setServicing($servicing)
+    {
+        $this->servicing = $servicing;
+
+        return $this;
+    }
+
+    /**
+     * Get servicing
+     *
+     * @return boolean
+     */
+    public function getServicing()
+    {
+        return $this->servicing;
+    }
+
 }

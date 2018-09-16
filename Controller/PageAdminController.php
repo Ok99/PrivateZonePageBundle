@@ -153,7 +153,9 @@ class PageAdminController extends Controller
     }
 
     /**
+     * @param Request|null $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig_Error_Runtime
      */
     public function treeAction(Request $request = null)
     {
@@ -167,7 +169,7 @@ class PageAdminController extends Controller
 
         if ($currentSite) {
             $pageManager = $this->get('sonata.page.manager.page');
-            $pages = $pageManager->loadPages($currentSite);
+            $pages = $pageManager->loadPages($currentSite, $this->admin->isAdmin());
             $locale = $currentSite->getDefaultLocale();
         } else {
             $pages = array();

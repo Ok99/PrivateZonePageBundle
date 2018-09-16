@@ -811,6 +811,10 @@
         <source>form.label_note</source>
         <target>Poznámka</target>
       </trans-unit>
+      <trans-unit id="form.label_servicing">
+        <source>form.label_servicing</source>
+        <target>Servisní stránka</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

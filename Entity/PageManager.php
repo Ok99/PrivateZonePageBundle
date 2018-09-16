@@ -73,10 +73,15 @@ class PageManager extends BasePageManager implements PageManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function loadPages(SiteInterface $site)
+    public function loadPages(SiteInterface $site, $isAdmin = true)
     {
         $query = $this->getEntityManager()
-            ->createQuery(sprintf('SELECT p FROM %s p INDEX BY p.id WHERE p.site = %d ORDER BY p.position ASC', $this->class, $site->getId()));
+            ->createQuery(sprintf(
+                'SELECT p FROM %s p INDEX BY p.id WHERE p.site = %d %s ORDER BY p.position ASC',
+                $this->class,
+                $site->getId(),
+                !$isAdmin ? 'AND p.servicing != 1' : ''
+            ));
 
         $query->setHint(
             \Doctrine\ORM\Query::HINT_CUSTOM_OUTPUT_WALKER,

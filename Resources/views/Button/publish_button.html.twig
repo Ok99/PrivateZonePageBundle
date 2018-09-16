@@ -1,5 +1,5 @@
 {% if admin.id(object) and admin.child('sonata.page.admin.snapshot').isGranted('CREATE') %}
     <a class="btn btn-default sonata-action-element" href="{{ admin.child('sonata.page.admin.snapshot').generateUrl('create', {'pageId': object.id, 'create': 1}) }}">
         <i class="fa fa-cloud-upload "></i>
-        {{ 'ok99.privatezone.link_action_publish'|trans }}</a>
+        {{ 'link_action_publish_page'|trans({}, 'Ok99PrivateZonePageBundle') }}</a>
 {% endif %}

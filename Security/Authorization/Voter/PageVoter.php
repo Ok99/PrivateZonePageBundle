@@ -47,7 +47,10 @@ class PageVoter implements VoterInterface
     }
 
     /**
-     * @var Object $object
+     * @param TokenInterface $token
+     * @param \Ok99\PrivateZoneCore\PageBundle\Entity\Page $object
+     * @param array $attributes
+     * @return int
      */
     public function vote(TokenInterface $token, $object, array $attributes)
     {
