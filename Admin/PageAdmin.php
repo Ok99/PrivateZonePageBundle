@@ -132,7 +132,7 @@ class PageAdmin extends BaseAdmin
         if (!$this->getSubject() || (!$this->getSubject()->isInternal() && !$this->getSubject()->isError())) {
             $formMapper
                 ->with($this->trans('form_page.group_basic_label'))
-                    ->add('translations', 'ok99_privatezone_translations', array(
+                    ->add('translations', 'canabelle_cms_translations', array(
                         'label' => false,
 						'locales' => $locales,
                         'fields' => array(
