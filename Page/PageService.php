@@ -79,6 +79,8 @@ class PageService extends BasePageService
                 $title = $page->getTitle().' - '.$siteTitle;
             } elseif ($page->getName()) {
                 $title = $page->getName().' - '.$siteTitle;
+            } else {
+                $title = $siteTitle;
             }
         }
         $this->seoPage->setTitle($title);
@@ -96,6 +98,11 @@ class PageService extends BasePageService
             $this->seoPage->addMeta('name', 'keywords', $page->getMetaKeyword());
         } elseif ($languageVersion->getMetaKeywords()) {
             $this->seoPage->addMeta('name', 'keywords', $languageVersion->getMetaKeywords());
+        }
+
+        if ($page->getOgImage()) {
+            //$ogImageUrl = $this->get('sonata.media.twig.extension')->path($ogImage, 'og_image'); TODO
+            $this->seoPage->addMeta('property', 'og:image', strpos($page->getOgImage(), '://') !== false ? $page->getOgImage() : sprintf('%s://%s%s', isset($_SERVER['HTTPS']) ? 'https' : 'http', $_SERVER['HTTP_HOST'], $page->getOgImage()));
         }
 
         $this->seoPage->addMeta('property', 'og:site_name', $languageVersion->getTitle());

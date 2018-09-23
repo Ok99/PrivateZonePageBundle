@@ -72,6 +72,7 @@ class Transformer extends BaseTransformer
         $content['parent_id']        = $page->getParent() ? $page->getParent()->getId() : null;
         $content['target_id']        = $page->getTarget() ? $page->getTarget()->getId() : null;
         $content['cssClass']         = $page->getCssClass();
+        $content['ogImage']          = $page->getOgImage();
 
         $content['blocks'] = array();
         foreach ($page->getBlocks() as $block) {
@@ -104,6 +105,8 @@ class Transformer extends BaseTransformer
             $content['parent_id']        = $page->getParent() ? $page->getParent()->getId() : null;
             $content['target_id']        = $page->getTarget() ? $page->getTarget()->getId() : null;
             $content['cssClass']         = $page->getCssClass();
+            $content['ogImage']          = $page->getOgImage();
+            $content['customUrl']        = $ptrans->getCustomUrl();
 
             $content['blocks'] = array();
             foreach ($page->getBlocks() as $block) {
@@ -152,6 +155,9 @@ class Transformer extends BaseTransformer
      */
     public function load(SnapshotInterface $snapshot)
     {
+        /**
+         * @var Page $page
+         */
         $page = $this->pageManager->create();
 
         $page->setRouteName($snapshot->getRouteName());
@@ -184,6 +190,12 @@ class Transformer extends BaseTransformer
         if (array_key_exists('cssClass', $content)) {
             $page->setCssClass($content['cssClass']);
         }
+        if (array_key_exists('ogImage', $content)) {
+            $page->setOgImage($content['ogImage']);
+        }
+        if (array_key_exists('customUrl', $content)) {
+            $page->setCustomUrl($content['customUrl']);
+        }
 
         $createdAt = new \DateTime;
         $createdAt->setTimestamp($content['created_at']);
@@ -193,6 +205,10 @@ class Transformer extends BaseTransformer
         $updatedAt->setTimestamp($content['updated_at']);
         $page->setUpdatedAt($updatedAt);
 
+        $page->parameters = $snapshot->getPage()->parameters;
+
+        // it's not necessary to gather translations, the right one is in main object thanks to translation walker
+        /*
         foreach ($snapshot->getTranslations() as $locale => $strans) {
             $ptrans = new PageTranslation();
             $ptrans->setObject($page);
@@ -210,9 +226,13 @@ class Transformer extends BaseTransformer
             $ptrans->setMetaKeyword($content['meta_keyword']);
             $ptrans->setName($content['name']);
             $ptrans->setSlug($content['slug']);
+            if (array_key_exists('customUrl', $content)) {
+                $ptrans->setCustomUrl($content['customUrl']);
+            }
 
             $page->addTranslation($ptrans);
         }
+        */
 
         return $page;
     }

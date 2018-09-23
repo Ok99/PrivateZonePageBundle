@@ -13,9 +13,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 class SharedBlockAdminController extends Controller
 {
-
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param Request|null $request
+     * @return Response
      */
     public function createAction(Request $request = null)
     {
@@ -52,11 +52,9 @@ class SharedBlockAdminController extends Controller
     /**
      * List action.
      *
-     * @param Request $request
-     *
-     * @return Response
-     *
-     * @throws AccessDeniedException If access is not granted
+     * @param Request|null $request
+     * @return null|Response
+     * @throws \Twig_Error_Runtime
      */
     public function listAction(Request $request = null)
     {

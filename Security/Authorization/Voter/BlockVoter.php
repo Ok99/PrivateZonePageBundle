@@ -34,7 +34,7 @@ class BlockVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $block, array $attributes)
     {
-        if (!$this->supportsClass(get_class($block))) {
+        if (!$block || !$this->supportsClass(get_class($block))) {
             return self::ACCESS_ABSTAIN;
         }
 

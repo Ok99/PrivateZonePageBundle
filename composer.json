@@ -5,8 +5,10 @@
     "keywords": ["symfony", "sonata"],
     "homepage": "http://www.ok99.cz",
     "license": "MIT",
-    "minimum-stability": "stable",
     "require": {
+        "sonata-project/page-bundle": "~2.4@dev",
+        "ok99/privatezone-admin-bundle": "~1.0@dev",
+        "symfony/symfony": ">=2.6.0 <3.0"
     },
     "require-dev": {
     },
@@ -14,5 +16,10 @@
     },
     "autoload": {
         "psr-4": { "Ok99\\PrivateZoneCore\\PageBundle\\": "" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
     }
 }

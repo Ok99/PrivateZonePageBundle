@@ -2,25 +2,72 @@
 
 namespace Ok99\PrivateZoneCore\PageBundle\Route;
 
-use Symfony\Cmf\Component\Routing\ChainedRouterInterface;
-use Symfony\Cmf\Component\Routing\VersatileGeneratorInterface;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use Symfony\Component\Routing\RouterInterface;
+use Sonata\PageBundle\Model\SnapshotPageProxy;
 use Sonata\PageBundle\CmsManager\CmsManagerInterface;
 use Sonata\PageBundle\Model\SiteInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
 use Sonata\PageBundle\Model\PageInterface;
 use Sonata\PageBundle\Exception\PageNotFoundException;
-use Sonata\PageBundle\Site\SiteSelectorInterface;
 use Sonata\PageBundle\Route\CmsPageRouter as BaseCmsPageRouter;
 
 class CmsPageRouter extends BaseCmsPageRouter
 {
+
+    /**
+     * {@inheritdoc}
+     */
+    public function match($pathinfo)
+    {
+        $cms = $this->cmsSelector->retrieve();
+        $site = $this->siteSelector->retrieve();
+
+        if (!$cms instanceof CmsManagerInterface) {
+            throw new ResourceNotFoundException('No CmsManager defined');
+        }
+
+        if (!$site instanceof SiteInterface) {
+            throw new ResourceNotFoundException('No site defined');
+        }
+
+        try {
+            $page = $cms->getPageByUrl($site, $pathinfo);
+        } catch (PageNotFoundException $e) {
+            throw new ResourceNotFoundException($pathinfo, 0, $e);
+        }
+
+        if (!$page || (!$page->isCms() && !$page->isHybrid())) {
+            throw new ResourceNotFoundException($pathinfo);
+        }
+
+        if (!$page->getEnabled() && !$this->cmsSelector->isEditor()) {
+            throw new ResourceNotFoundException($pathinfo);
+        }
+
+        $cms->setCurrentPage($page);
+
+        return array_merge(($page instanceof SnapshotPageProxy ? $page->getPage()->parameters : $page->parameters) ?: array(), array(
+            '_controller' => $page->isHybrid() ? $this->getControllerForRouteName($page->getRouteName()) : 'sonata.page.page_service_manager:execute',
+            '_route'      => $page->isHybrid() ? $page->getRouteName() : PageInterface::PAGE_ROUTE_CMS_NAME,
+            'page'        => $page,
+            'path'        => $pathinfo,
+        ));
+    }
+
+    // agrofert_agrofert_career_list -> CareerController::listAction
+    protected function getControllerForRouteName($routeName)
+    {
+        foreach ($this->router->getRouteCollection() as $name => $route) {
+            if ($name === $routeName) {
+                return $route->getDefaults()['_controller'];
+            }
+        }
+
+        throw new ResourceNotFoundException($routeName);
+    }
+
+
     /**
      * Generates an URL from a Page object
      *
@@ -49,7 +96,7 @@ class CmsPageRouter extends BaseCmsPageRouter
             throw new \RuntimeException(sprintf('Page "%d" has no url or customUrl.', $page->getId()));
         }
 
-        $url = $this->decorateUrl($url, $parameters, $referenceType);
+        $url = $this->customDecorateUrl($page->getSite(), $url, $parameters, $referenceType);
 
         if ($page->getSite() !== $this->siteSelector->retrieve()) {
             $url = str_replace($this->siteSelector->retrieve()->getRelativePath(), $page->getSite()->getRelativePath(), $url);
@@ -92,6 +139,14 @@ class CmsPageRouter extends BaseCmsPageRouter
             $url = $this->getRelativePath($this->context->getPathInfo(), $url);
         } else {
             $url = sprintf('%s%s%s', $schemeAuthority, str_replace($this->siteSelector->retrieve()->getRelativePath(), $site->getRelativePath(), $this->context->getBaseUrl()), $url);
+        }
+
+        foreach ($parameters as $k => $v) {
+            $pattern = '{'.$k.'}';
+            if (strpos($url, $pattern) !== false) {
+                $url = str_replace($pattern, $v, $url);
+                unset($parameters[$k]);
+            }
         }
 
         if (count($parameters) > 0) {

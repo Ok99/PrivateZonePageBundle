@@ -29,39 +29,35 @@ class PageManager extends BasePageManager implements PageManagerInterface
             return;
         }
 
-        // hybrid page cannot be altered
-        if (!$page->isHybrid()) {
+        // make sure Page has a valid url
+        if ($page->getParent()) {
+            foreach ($page->getTranslations() as $trans) {
+                $locale = $trans->getLocale();
 
-            // make sure Page has a valid url
-            if ($page->getParent()) {
-                foreach ($page->getTranslations() as $trans) {
-                    $locale = $trans->getLocale();
+                if (!$trans->getSlug()) {
+                    $trans->setSlug(ModelPage::slugify($trans->getName()));
+                }
 
-                    if (!$trans->getSlug()) {
-                        $trans->setSlug(ModelPage::slugify($trans->getName()));
+                $parent = $page->getParent();
+                $ptrans = $parent->getTranslation($locale);
+
+                if ($ptrans) {
+                    $url = $ptrans->getUrl();
+                    if ($url == '/') {
+                        $base = '/';
+                    } elseif (substr($url, -1) != '/') {
+                        $base = $url . '/';
+                    } else {
+                        $base = $url;
                     }
 
-                    $parent = $page->getParent();
-                    foreach ($parent->getTranslations() as $ptrans) {
-                        if ($ptrans->getLocale() === $locale) {
-                            $url = $ptrans->getUrl();
-                            if ($url == '/') {
-                                $base = '/';
-                            } elseif (substr($url, -1) != '/') {
-                                $base = $url . '/';
-                            } else {
-                                $base = $url;
-                            }
-
-                            $trans->setUrl($base . $trans->getSlug());
-                        }
-                    }
+                    $trans->setUrl($base . $trans->getSlug());
                 }
-            } else {
-                foreach ($page->getTranslations() as $trans) {
-                    // a parent page does not have any slug - can have a custom url ...
-                    $trans->setUrl('/' . $trans->getSlug());
-                }
+            }
+        } else {
+            foreach ($page->getTranslations() as $trans) {
+                // a parent page does not have any slug - can have a custom url ...
+                $trans->setUrl('/' . $trans->getSlug());
             }
         }
 
@@ -119,12 +115,45 @@ class PageManager extends BasePageManager implements PageManagerInterface
         }
 
         foreach ($this->pages[$site_id] as $page) {
-            if ($page->getUrl() === $url) {
+            if ($this->matches($page, $url)) {
                 return $page;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Test the $page if it matches the $url
+     *
+     * @param Page $page
+     * @param $url
+     * @return bool
+     */
+    protected function matches(Page $page, $url)
+    {
+        $purl = $page->getUrl();
+        $pattern = '#^'.$purl.'$#';
+        preg_match_all('/{[a-z]+}/', $purl, $matches);
+
+        $tokens = $matches[0];
+        foreach ($tokens as $token) {
+            $pattern = preg_replace('/'.$token.'/', '(.+)', $pattern);
+        }
+
+        if (preg_match($pattern, $url, $matches)) {
+            // remove brackets from tokens
+            $tokens = array_map(function ($a) { return substr($a, 1, -1); }, $tokens);
+
+            // remove first (whole) match
+            array_shift($matches);
+
+            $page->parameters = array_combine($tokens, $matches);
+
+            return true;
+        }
+
+        return false;
     }
 
     public function findOneById($site, $id)

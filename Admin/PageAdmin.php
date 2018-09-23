@@ -13,21 +13,20 @@ namespace Ok99\PrivateZoneCore\PageBundle\Admin;
 
 use Ok99\PrivateZoneCore\AdminBundle\Admin\Admin as BaseAdmin;
 use Ok99\PrivateZoneCore\PageBundle\Entity\Page;
+use Ok99\PrivateZoneCore\PageBundle\Entity\SitePool;
+use Knp\Menu\ItemInterface as MenuItemInterface;
 use Sonata\AdminBundle\Admin\AdminInterface;
 use Sonata\AdminBundle\Route\RouteCollection;
-use Ok99\PrivateZoneCore\PageBundle\Entity\SitePool;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
-
+use Sonata\Cache\CacheManagerInterface;
 use Sonata\PageBundle\Exception\PageNotFoundException;
 use Sonata\PageBundle\Exception\InternalErrorException;
+use Sonata\PageBundle\Model\PageInterface;
 use Sonata\PageBundle\Model\PageManagerInterface;
-
-use Sonata\Cache\CacheManagerInterface;
-
-use Knp\Menu\ItemInterface as MenuItemInterface;
+use Sonata\PageBundle\Model\SiteInterface;
 
 /**
  * Admin definition for the Page class
@@ -214,6 +213,7 @@ class PageAdmin extends BaseAdmin
                     ),
                     'admin_code' => 'ok99.privatezone.media.admin.media'
                 ))
+                ->add('ogImage', null, array('required' => false))
                 ->add('position')
                 ->add('cssClass')
             ->end();
@@ -262,6 +262,7 @@ class PageAdmin extends BaseAdmin
 
         $formMapper
             ->with($this->trans('form_page.group_advanced_label'), array('collapsed' => false))
+                ->add('routeName', null, array('required' => true))
                 ->add('pageAlias', null, array('required' => false))
                 ->add('javascript', null,  array('required' => false))
                 ->add('stylesheet', null, array('required' => false))
@@ -367,6 +368,10 @@ class PageAdmin extends BaseAdmin
     {
         $instance = parent::getNewInstance();
 
+        if (!$instance->getRouteName()) {
+            $instance->setRouteName(PageInterface::PAGE_ROUTE_CMS_NAME);
+        }
+
         if (!$this->hasRequest()) {
             return $instance;
         }
@@ -398,7 +403,7 @@ class PageAdmin extends BaseAdmin
     }
 
     /**
-     * @return SiteInterface
+     * @return bool|SiteInterface
      *
      * @throws \RuntimeException
      */

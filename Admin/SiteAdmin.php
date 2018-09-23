@@ -103,7 +103,18 @@ class SiteAdmin extends BaseAdmin
                     ),
                     'admin_code' => 'ok99.privatezone.media.admin.media'
                 ))
-            ->end();
+            ->end()
+            ->with($this->trans('form_site.label_languages'))
+                ->add('languageVersions', 'sonata_type_collection', array(
+                        'type_options' => array('delete' => true),
+                        'label' => ' ',
+                        'required' => false,
+                    ), array(
+                        'edit' => 'inline',
+                        'inline' => 'blocks',
+                    ))
+            ->end()
+        ;
     }
 
     /**

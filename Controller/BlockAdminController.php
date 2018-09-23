@@ -22,10 +22,15 @@ class BlockAdminController extends Controller
     public function preEdit(Request $request, $object)
     {
         // set current site to currently edited block's site
-        if ($object->getSite()) {
-            $request->query->set('site', $object->getSite()->getId());
-            $this->get('ok99.privatezone.site.pool')->getCurrentSite($request);
+        if ($site = $object->getSite()) {
+            $request->query->set('site', $site->getId());
+        } elseif ($object->getPage() && ($site = $object->getPage()->getSite())) {
+            $request->query->set('site', $site->getId());
         }
+
+        $this->get('ok99.privatezone.site.pool')->getCurrentSite($request);
+        $translatableListener = $this->get('gedmo.listener.translatable');
+        $translatableListener->setTranslatableLocale($site->getLocale());
 
         parent::preEdit($request, $object);
     }

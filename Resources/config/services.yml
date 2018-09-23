@@ -25,35 +25,35 @@ services:
                 - [ setContainerBlockTypes, [%sonata.block.container.types%] ]
                 - [ setFormTheme, [[SonataPageBundle:Form:form_admin_fields.html.twig, SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig]] ]
 
-#    ok99.privatezone.page.admin.languageversion:
-#        class: Ok99\PrivateZoneCore\PageBundle\Admin\LanguageVersionAdmin
-#        tags:
-#            - { name: sonata.admin, manager_type: orm, group: sonata_page, label: languageVersions }
-#        arguments: [null, Ok99\PrivateZoneCore\PageBundle\Entity\LanguageVersion, null, @sonata.page.route.page.generator]
-#        calls:
-#            - [ setTranslationDomain, [ SonataPageBundle ] ]
+    ok99.privatezone.admin.languageversion:
+        class: Ok99\PrivateZoneCore\PageBundle\Admin\LanguageVersionAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: sonata_page, label: languageVersions }
+        arguments: [null, Ok99\PrivateZoneCore\PageBundle\Entity\LanguageVersion, null, @sonata.page.route.page.generator]
+        calls:
+            - [ setTranslationDomain, [ SonataPageBundle ] ]
 
-#    ok99.privatezone.page.admin.redirect:
-#        class: Ok99\PrivateZoneCore\PageBundle\Admin\RedirectAdmin
-#        tags:
-#            - { name: sonata.admin, manager_type: orm, group: sonata_page, label: redirect, label_catalogue: %sonata.page.admin.page.translation_domain%, label_translator_strategy: sonata.admin.label.strategy.underscore }
-#        arguments: [null, Ok99\PrivateZoneCore\PageBundle\Entity\Redirect, null]
-#        calls:
-#            - [ setTranslationDomain, [ SonataPageBundle ] ]
+    ok99.privatezone.admin.redirect:
+        class: Ok99\PrivateZoneCore\PageBundle\Admin\RedirectAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: sonata_page, label: redirect, label_catalogue: %sonata.page.admin.page.translation_domain%, label_translator_strategy: sonata.admin.label.strategy.underscore }
+        arguments: [null, Ok99\PrivateZoneCore\PageBundle\Entity\Redirect, null, @doctrine.orm.default_entity_manager]
+        calls:
+            - [ setTranslationDomain, [ SonataPageBundle ] ]
 
-#    ok99.privatezone.security.access.page_voter:
-#        class: Ok99\PrivateZoneCore\PageBundle\Security\Authorization\Voter\PageVoter
-#        arguments: [ @service_container ]
-#        public: false
-#        tags:
-#           - { name: security.voter }
+    ok99.privatezone.security.access.page_voter:
+        class: Ok99\PrivateZoneCore\PageBundle\Security\Authorization\Voter\PageVoter
+        arguments: [ @service_container ]
+        public: false
+        tags:
+           - { name: security.voter }
 
-#    ok99.privatezone.security.access.block_voter:
-#        class: Ok99\PrivateZoneCore\PageBundle\Security\Authorization\Voter\BlockVoter
-#        arguments: [ @service_container ]
-#        public: false
-#        tags:
-#           - { name: security.voter }
+    ok99.privatezone.security.access.block_voter:
+        class: Ok99\PrivateZoneCore\PageBundle\Security\Authorization\Voter\BlockVoter
+        arguments: [ @service_container ]
+        public: false
+        tags:
+           - { name: security.voter }
 
     ok99.privatezone.page.form.type.page_selector:
         class: Ok99\PrivateZoneCore\PageBundle\Form\Type\PageSelectorType
@@ -61,30 +61,30 @@ services:
         tags:
             - { name: form.type, alias: ok99_privatezone_page_selector }
 
-#    ok99.privatezone.page.form.type.site_selector:
-#        class: Ok99\PrivateZoneCore\PageBundle\Form\Type\SiteSelectorType
-#        arguments: [ @ok99.privatezone.site.pool ]
-#        scope: prototype
-#        tags:
-#            - { name: form.type, alias: ok99_privatezone_site_selector }
+    ok99.privatezone.page.form.type.site_selector:
+        class: Ok99\PrivateZoneCore\PageBundle\Form\Type\SiteSelectorType
+        arguments: [ @ok99.privatezone.site.pool ]
+        scope: prototype
+        tags:
+            - { name: form.type, alias: ok99_privatezone_site_selector }
 
     ok99.privatezone.site.pool:
         class: Ok99\PrivateZoneCore\PageBundle\Entity\SitePool
         arguments: [ @sonata.page.manager.site, @session, @security.authorization_checker, @sonata.page.admin.site ]
         scope: prototype
 
-#    ok99.privatezone.page.kernel.exception_listener:
-#        class: Ok99\PrivateZoneCore\PageBundle\Listener\ExceptionListener
-#        arguments: [@sonata.page.site.selector, @sonata.page.cms_manager_selector, %kernel.debug%, @templating, @sonata.page.page_service_manager, @sonata.page.decorator_strategy, {403: _page_internal_error_access_denied, 404: _page_internal_error_not_found, 500: _page_internal_error_fatal}, @logger, @security.token_storage, @sonata.admin.pool ]
-#        tags:
-#            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: -126 }
-#            - { name: monolog.logger, channel: request }
+    ok99.privatezone.kernel.exception_listener:
+        class: Ok99\PrivateZoneCore\PageBundle\Listener\ExceptionListener
+        arguments: [@sonata.page.site.selector, @sonata.page.cms_manager_selector, %kernel.debug%, @templating, @sonata.page.page_service_manager, @sonata.page.decorator_strategy, {403: _page_internal_error_access_denied, 404: _page_internal_error_not_found, 500: _page_internal_error_fatal}, @logger, @security.token_storage, @sonata.admin.pool ]
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: -126 }
+            - { name: monolog.logger, channel: request }
 
-#    ok99.privatezone.page.repository.redirect:
-#        class:           Doctrine\ORM\EntityRepository
-#        factory_service: doctrine.orm.entity_manager
-#        factory_method:  getRepository
-#        arguments: [ Ok99\PrivateZoneCore\PageBundle\Entity\Redirect ]
+    ok99.privatezone.repository.redirect:
+        class:           Doctrine\ORM\EntityRepository
+        factory_service: doctrine.orm.entity_manager
+        factory_method:  getRepository
+        arguments: [ Ok99\PrivateZoneCore\PageBundle\Entity\Redirect ]
 
     sonata.page.request_listener:
         class: %sonata.page.request_listener.class%
@@ -92,15 +92,15 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onCoreRequest, priority: 30 }
 
-#    ok99.privatezone.page.doctrine_locale_listener:
-#        class: Ok99\PrivateZoneCore\PageBundle\Listener\DoctrineLocaleListener
-#        arguments: [ @gedmo.listener.translatable, @sonata.page.site.selector ]
-#        tags:
-#            - { name: kernel.event_listener, event: kernel.request, method: onLateKernelRequest, priority: 40 }
+    ok99.privatezone.doctrine_locale_listener:
+        class: Ok99\PrivateZoneCore\PageBundle\Listener\DoctrineLocaleListener
+        arguments: [ @gedmo.listener.translatable, @sonata.page.site.selector ]
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onLateKernelRequest, priority: 40 }
 
-#    ok99.privatezone.page.redirect_listener:
-#        class: Ok99\PrivateZoneCore\PageBundle\Listener\RedirectListener
-#        arguments: [ @ok99.privatezone.page.repository.redirect ]
-#        tags:
-#            - { name: kernel.event_listener, event: kernel.request, priority: 64 }
+    ok99.privatezone.redirect_listener:
+        class: Ok99\PrivateZoneCore\PageBundle\Listener\RedirectListener
+        arguments: [ @ok99.privatezone.repository.redirect ]
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 64 }
 

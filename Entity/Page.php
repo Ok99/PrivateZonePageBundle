@@ -233,6 +233,11 @@ class Page implements PageInterface
     protected $icon;
 
     /**
+     * @ORM\Column(name="og_image", type="string", length=255, nullable=true)
+     */
+    protected $ogImage;
+
+    /**
      * @ORM\Column(name="css_class", type="string", length=255, nullable=true)
      */
     protected $cssClass;
@@ -242,6 +247,8 @@ class Page implements PageInterface
      * @Assert\Valid
      */
     protected $translations;
+
+    public $parameters = array();
 
     protected static $slugifyMethod;
 
@@ -515,6 +522,18 @@ class Page implements PageInterface
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    public function setOgImage($ogImage = null)
+    {
+        $this->ogImage = $ogImage;
+
+        return $this;
+    }
+
+    public function getOgImage()
+    {
+        return $this->ogImage;
     }
 
     public function getTranslations()
@@ -1230,6 +1249,11 @@ class Page implements PageInterface
      */
     public function __toString()
     {
+        foreach ($this->translations as $translation) {
+            if ($translation->getName()) {
+                return $translation->getName();
+            }
+        }
         return $this->getName() ?: '-';
     }
 
@@ -1370,5 +1394,4 @@ class Page implements PageInterface
     {
         return $this->servicing;
     }
-
 }

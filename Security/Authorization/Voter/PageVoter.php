@@ -54,7 +54,7 @@ class PageVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $object, array $attributes)
     {
-        if ($this->onHold || !$this->supportsClass(get_class($object))) {
+        if ($this->onHold || !$object || !$this->supportsClass(get_class($object))) {
             return self::ACCESS_ABSTAIN;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Ok99\PrivateZoneCore\PageBundle\Controller;
 
+use Sonata\AdminBundle\Exception\ModelManagerException;
 use Sonata\PageBundle\Controller\PageAdminController as Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -273,13 +274,10 @@ class PageAdminController extends Controller
     /**
      * Delete action
      *
-     * @param int|string|null $id
-     * @param Request         $request
-     *
-     * @return Response|RedirectResponse
-     *
-     * @throws NotFoundHttpException If the object does not exist
-     * @throws AccessDeniedException If access is not granted
+     * @param int|null|string $id
+     * @param Request|null $request
+     * @return null|RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function deleteAction($id, Request $request = null)
     {
@@ -343,8 +341,6 @@ class PageAdminController extends Controller
             return $this->redirectTo($object, $request);
         }
 
-
-//        return $this->render($this->admin->getTemplate('delete'), array(
         return $this->render('Ok99PrivateZonePageBundle:PageAdmin:delete.html.twig', array(
             'block_refs' => $this->get('sonata.page.manager.page')->findBlockLinksTo($object),
             'snap_refs'  => $this->get('sonata.page.manager.page')->findSnapshotLinksTo($object),
