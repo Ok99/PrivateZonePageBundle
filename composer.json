@@ -7,7 +7,6 @@
     "license": "MIT",
     "require": {
         "sonata-project/page-bundle": "~2.4@dev",
-        "ok99/privatezone-admin-bundle": "~1.0@dev",
         "symfony/symfony": ">=2.6.0 <3.0"
     },
     "require-dev": {
