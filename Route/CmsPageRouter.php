@@ -2,6 +2,8 @@
 
 namespace Ok99\PrivateZoneCore\PageBundle\Route;
 
+use Ok99\PrivateZoneCore\PageBundle\Entity\Page;
+use Ok99\PrivateZoneCore\PageBundle\Entity\PageTranslation;
 use Sonata\PageBundle\Model\SnapshotPageProxy;
 use Sonata\PageBundle\CmsManager\CmsManagerInterface;
 use Sonata\PageBundle\Model\SiteInterface;
@@ -14,7 +16,6 @@ use Sonata\PageBundle\Route\CmsPageRouter as BaseCmsPageRouter;
 
 class CmsPageRouter extends BaseCmsPageRouter
 {
-
     /**
      * {@inheritdoc}
      */
@@ -55,7 +56,10 @@ class CmsPageRouter extends BaseCmsPageRouter
         ));
     }
 
-    // agrofert_agrofert_career_list -> CareerController::listAction
+    /**
+     * @param $routeName
+     * @return mixed
+     */
     protected function getControllerForRouteName($routeName)
     {
         foreach ($this->router->getRouteCollection() as $name => $route) {
@@ -67,6 +71,24 @@ class CmsPageRouter extends BaseCmsPageRouter
         throw new ResourceNotFoundException($routeName);
     }
 
+    /**
+     * Returns the Url from a Page object
+     *
+     * @param Page $page
+     * @param string|null $locale
+     *
+     * @return string
+     */
+    protected function getUrlFromPage(PageInterface $page, $locale = null)
+    {
+        if ($locale) {
+            /** @var PageTranslation $pageTranslation */
+            $pageTranslation = $page->getTranslation($locale);
+            return $pageTranslation->getCustomUrl() ?: $pageTranslation->getUrl();
+        }
+
+        return $page->getCustomUrl() ?: $page->getUrl();
+    }
 
     /**
      * Generates an URL from a Page object
@@ -90,17 +112,74 @@ class CmsPageRouter extends BaseCmsPageRouter
             //return $this->router->generate($page->getRouteName(), $parameters, $referenceType);
         }
 
-        $url = $this->getUrlFromPage($page);
+        $url = $this->getUrlFromPage($page, isset($parameters['_locale']) && $parameters['_locale'] ? $parameters['_locale'] : null);
 
         if ($url === false) {
             throw new \RuntimeException(sprintf('Page "%d" has no url or customUrl.', $page->getId()));
         }
 
-        $url = $this->customDecorateUrl($page->getSite(), $url, $parameters, $referenceType);
+        $url = $this->decorateUrl($url, $parameters, $referenceType);
 
         if ($page->getSite() !== $this->siteSelector->retrieve()) {
             $url = str_replace($this->siteSelector->retrieve()->getRelativePath(), $page->getSite()->getRelativePath(), $url);
         }
+
+        return $url;
+    }
+
+    /**
+     * Decorates an URL with url context and query
+     *
+     * @param string      $url           Relative URL
+     * @param array       $parameters    An array of parameters
+     * @param bool|string $referenceType The type of reference to be generated (one of the constants)
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    protected function decorateUrl($url, array $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+    {
+        if (!$this->context) {
+            throw new \RuntimeException('No context associated to the CmsPageRouter');
+        }
+
+        $schemeAuthority = '';
+        if ($this->context->getHost() && (self::ABSOLUTE_URL === $referenceType || self::NETWORK_PATH === $referenceType)) {
+            $port = '';
+            if ('http' === $this->context->getScheme() && 80 != $this->context->getHttpPort()) {
+                $port = sprintf(':%s', $this->context->getHttpPort());
+            } elseif ('https' === $this->context->getScheme() && 443 != $this->context->getHttpsPort()) {
+                $port = sprintf(':%s', $this->context->getHttpsPort());
+            }
+
+            $schemeAuthority = self::NETWORK_PATH === $referenceType ? '//' : sprintf('%s://', $this->context->getScheme());
+            $schemeAuthority = sprintf('%s%s%s', $schemeAuthority, $this->context->getHost(), $port);
+        }
+
+        if (self::RELATIVE_PATH === $referenceType) {
+            $url = $this->getRelativePath($this->context->getPathInfo(), $url);
+        } else {
+            $baseUrl = $this->context->getBaseUrl();
+            if (isset($parameters['_locale'])) {
+                $baseUrl = rtrim($baseUrl, sprintf('/%s', $parameters["page"]->getSite()->getLocale()));
+                $baseUrl = sprintf('%s/%s', $baseUrl, $parameters['_locale']);
+
+                unset($parameters['_locale']);
+            }
+
+            $url = sprintf('%s%s%s', $schemeAuthority, $baseUrl, $url);
+        }
+
+        if (isset($parameters['page'])) {
+            unset($parameters['page']);
+        }
+
+        if (count($parameters) > 0) {
+            return sprintf('%s?%s', $url, http_build_query($parameters, '', '&'));
+        }
+
+        $url = rtrim($url, '/');
 
         return $url;
     }
