@@ -21,7 +21,7 @@
     {#% include 'Ok99PrivateZoneAdminBundle:Button:list_button.html.twig' %#}
 {% endblock %}
 
-{% block body_attributes %}class="sonata-bc skin-blue page-composer-page sonata-ba-no-side-menu"{% endblock %}
+{% block body_attributes %}class="sonata-bc skin-{{ app.user and app.user.skinColor ? app.user.skinColor : 'blue' }} sidebar-mini{{ app.user and app.user.menuSidebarCollapsed ? ' sidebar-collapse' : '' }}{{ app.user and app.user.menuSidebarExpandOnHover ? ' sidebar-expand-on-hover' : '' }}{{ admin is defined and admin.isAdmin is defined and admin.isAdmin() ? ' admin' : '' }}{{ app.user ? ' logged' : '' }} page-composer-page sonata-ba-no-side-menu"{% endblock %}
 
 {% block content %}
     <div class="page-composer">
